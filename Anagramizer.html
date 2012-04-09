@@ -7,7 +7,6 @@
 <body>
 <div id="container">
     <p id="noscript">Для возможности поиска необходим включенный JavaScript</p>
-    <!--TODO:Добавить несколько инпутов для расширенного поиска и настроек-->
     <input id="anagram" type="text" name="anagram" value="" maxlength="30"/>
     <input id="search" type="button" name="btn" value="Поиск"/>
     <div style="clear: both;"></div>
@@ -15,15 +14,12 @@
         <label for="ru">ru<input id="ru" name="lang" type="radio" checked="checked"/></label>
     </div>
     <div id="search_result"></div>
-    <!--<p>Список улиц:</p>-->
-    <!--TODO:Подключить улицы. Сделать возможность выбора рус/укр-->
-    <!--TODO:Улицы из двух слов-->
+    <!--TODO:Подключить улицы RU-->
 </div>
 <script type="text/javascript">
     //<!--
     window.onload = function() {
         document.getElementById('noscript').style.display = 'none';
-        //TODO: Доделать регексп
         var regexp = /;/;//Регексп для разбития улиц
         var ii,jj = 0,kk,tt = 0,flag,list_unedited, word_letter,anagram_letter,pre_result = [],list = [],result = [], cur_um,for_swap = [];
         /*Основной цикл - функция*/
@@ -53,22 +49,22 @@
             tt = 0;
             /*Ввод анаграммы*/
             var anagram = document.getElementById('anagram').value.toLowerCase();
-            for (ii in list) {
+            for (ii = 0; ii < list.length; ii++) {
                 pre_result[ii] = [];
                 pre_result[ii]['match'] = pre_result[ii]['unmatch'] = 0;
                 pre_result[ii]['result'] = pre_result[ii]['search'] = '';
                 var cur_word = list[ii];
                 /*Перебор букв в анаграмме*/
-                for (jj in anagram) {
-                    anagram_letter = anagram[jj];
+                for (jj = 0; jj < anagram.length; jj++) {
+                    anagram_letter = anagram.charAt(jj);
                     flag = false;
                     /*Перебор букв в слове*/
                     for (kk = 0; kk < cur_word.length; kk++) {
-                        word_letter = cur_word[kk];
+                        word_letter = cur_word.charAt(kk);
                         /*Совпадение*/
                         if (word_letter === anagram_letter) {
                             pre_result[ii]['match']++;
-                            pre_result[ii]['result'] = list[ii];
+                            pre_result[ii]['result'] = cur_word;
                             //Замена совпавшей буквы в слове для предотвращения повторов
                             cur_word = cur_word.slice(0, kk) + word_letter.toUpperCase() + cur_word.slice(kk + 1);
                             flag = true;
@@ -77,6 +73,7 @@
                     }
                     flag || pre_result[ii]['unmatch']++;
                 }
+
                 if (pre_result[ii]['match'] > 2) {
                     result[tt] = [];
                     result[tt]['search'] = cur_word;
@@ -86,6 +83,7 @@
                     tt++;
                 }
             }
+
             for (ii = 0; ii < (result.length - 1); ii++) {
                 kk = ii;
                 cur_um = result[ii]['unmatch'];
@@ -111,24 +109,23 @@
                     result[kk]['result'] = for_swap['result'];
                 }
             }
-            //TODO:Постраничная навигация
             if (result.length) {
                 var res = '<p class="result_title">Результат поиска:</p><table cellpadding="0" cellspacing="0">';
                 var res1 = '';
-                for (ii in result) {
+                for (ii = 0; ii < result.length; ii++) {
                     res1 = '';
-                    for (jj in result[ii]['search']) {
+                    for (jj = 0; jj < result[ii]['search'].length; jj++) {
                         if (0x040f < result[ii]['search'].charCodeAt(jj) && result[ii]['search'].charCodeAt(jj) < 0x0430) {
-                            res1 += '<s>' + result[ii]['search'][jj].toLowerCase() + '</s>'
+                            res1 += '<span>' + result[ii]['search'].charAt(jj).toLowerCase() + '</span>'
                         }
                         else {
-                            res1 += result[ii]['search'][jj];
+                            res1 += result[ii]['search'].charAt(jj);
                         }
                     }
                     res += '<tr>' +
                             '<td>' + res1 + '</td>' +
                             '<td>' + result[ii]['match'] + '</td>' +
-//							'<td>' + result[ii]['unmatch'] + '</td>' +
+                            '<td>' + result[ii]['unmatch'] + '</td>' +
                             '</tr>';
                 }
                 res += '</table>';
@@ -152,7 +149,6 @@
     //TODO: Аккуратные названия переменных
     //TODO: Compressed version
 </script>
-<!--TODO: Вёрстка-->
 <style type="text/css">
     div, p, body, html, a, li, td {
         margin: 0;
@@ -227,8 +223,7 @@
         padding-bottom: 15px;
     }
 
-    s {
-        text-decoration: none;
+    #search_result span {
         color: black;
     }
 
