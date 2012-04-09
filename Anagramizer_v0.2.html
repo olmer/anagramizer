@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>Анаграмайзер</title>
+</head>
+<body>
+<div>
+	<!--TODO:Оформить инпуты-->
+	<input id="anagram" type="text" name="anagram" value=""/>
+	<input id="search" type="button" name="btn" value="Поиск"/>
+	<!--TODO:Оформить результаты-->
+	<p>Результат поиска:</p>
+	<p id="search_result"></p>
+	<!--<p>Список улиц:</p>-->
+	<!--TODO:Сворачивание-разворачивание списка улиц-->
+	<p id="streets_list" style="display:none;">ул. Попудренка Красноткацкая Энтузиастов бул. Шевченка</p>
+</div>
+<script type="text/javascript">
+	window.onload = function() {
+		//TODO: Доделать регексп
+		var regexp = /\s+,*\s*/;//Регексп для разбития улиц
+		var ii,jj = 0,kk,tt = 0,flag, word_letter,anagram_letter,pre_result = [],list = [];
+		/*Чтение улиц в массив*/
+		var list_unedited = document.getElementById('streets_list').innerHTML.split(regexp);
+		/*
+		 Проверка улиц. В данный момент:
+		 1. Отбрасывает названия меньше 5 символов
+		 2. Приводит к нижнему регистру
+		 */
+		for (ii in list_unedited) {
+			if (list_unedited[ii].length > 4) {
+				list[jj] = list_unedited[ii].toLowerCase();
+				jj++;
+			}
+		}
+		/*Основной цикл - функция*/
+		function search() {
+			pre_result = [];
+			/*Ввод анаграммы*/
+			var anagram = document.getElementById('anagram').value.toLowerCase();
+			console.log(anagram);
+			for (ii in list) {
+				pre_result[ii] = [];
+				pre_result[ii]['match'] = 0;
+				pre_result[ii]['unmatch'] = 0;
+				pre_result[ii]['result'] = '';
+				pre_result[ii]['search'] = '';
+				var cur_word = list[ii];
+				/*Перебор букв в анаграмме*/
+				for (jj in anagram) {
+					anagram_letter = anagram[jj];
+					flag = false;
+					/*Перебор букв в слове*/
+					for (kk = 0; kk < cur_word.length; kk++) {
+						word_letter = cur_word[kk];
+						/*Совпадение*/
+						if (word_letter === anagram_letter) {
+							pre_result[ii]['match']++;
+							pre_result[ii]['result'] = list[ii];
+							//Замена совпавшей буквы в слове для предотвращения повторов
+							cur_word = cur_word.slice(0, kk) + word_letter.toUpperCase() + cur_word.slice(kk + 1);
+							flag = true;
+							break;
+						}
+					}
+					if (flag) continue;
+					pre_result[ii]['unmatch']++;
+				}
+				pre_result[ii]['search'] = cur_word;
+			}
+			//TODO:Упорядочивание результата
+			var res = '';
+			var res1 = '';
+			for (ii in pre_result) {
+				if (pre_result[ii]['match'] > 2) {
+					res1='';
+					for (jj in pre_result[ii]['search']) {
+						if (0x040f < pre_result[ii]['search'].charCodeAt(jj) && pre_result[ii]['search'].charCodeAt(jj) < 0x0430) {
+							res1 += '<s>' + pre_result[ii]['search'][jj].toLowerCase() + '</s>'
+						}
+						else {
+							res1 += pre_result[ii]['search'][jj];
+						}
+					}
+					res += res1 + '<br/>';
+				}
+			}
+			document.getElementById('search_result').innerHTML = res;
+		}
+
+		document.getElementById('search').onclick = function() {
+			if (document.getElementById('anagram').value) {
+				search();
+			}
+			else {
+				//TODO: Красивое предупреждение
+				alert('Ведите искомое слово')
+			}
+		}
+	};
+</script>
+<style type="text/css">
+	s {
+		text-decoration: none;
+		color: red;
+	}
+</style>
+</body>
+</html>
